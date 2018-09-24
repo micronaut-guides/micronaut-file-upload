@@ -45,10 +45,13 @@ public class S3FileRepository implements FileRepository {
         }
         try {
 
-            File tempFile = File.createTempFile(file.getFilename(), "temp");
-            Path path = Paths.get(tempFile.getAbsolutePath());
-            Files.write(path, file.getBytes());
-            s3Client.putObject(new PutObjectRequest(bucket, key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead));
+            final int length = file.getBytes().length;
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("content-length {}", length);
+            }
+            ObjectMetadata s3ObjectMetadata = new ObjectMetadata();
+            s3ObjectMetadata.setContentLength(length);
+            s3Client.putObject(new PutObjectRequest(bucket, key, file.getInputStream(), s3ObjectMetadata).withCannedAcl(CannedAccessControlList.PublicRead));
 
         } catch (AmazonServiceException | IOException e) {
             if (LOG.isErrorEnabled()) {
