@@ -1,5 +1,6 @@
 package example.micronaut;
 
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
@@ -9,8 +10,15 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.views.View;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +27,7 @@ import java.util.Map;
 public class HomeController {
 
     private final FileRepository fileRepository;
+    protected static final Logger LOG = LoggerFactory.getLogger(S3FileRepository.class);
 
     public HomeController(FileRepository fileRepository) {
         this.fileRepository = fileRepository;

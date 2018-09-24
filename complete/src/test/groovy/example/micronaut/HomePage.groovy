@@ -10,8 +10,8 @@ class HomePage extends Page {
 
     static content = {
         inputFile { $('input#file', 0) }
-        uploadButton { $('input', type: "submit", value: 'Upload', 0)}
-        deleteButton { $('input', type: "submit", value: 'Delete', 0)}
+        uploadButton { $('#uploadBtn') }
+        deleteButton(required: false) { $('#deleteBtn') }
         image(required: false) { $("img#image", 0) }
         uploadForm { $('form', action: '/upload') }
     }
@@ -22,7 +22,9 @@ class HomePage extends Page {
     }
 
     void delete() {
-        deleteButton.click()
+        if(!deleteButton.empty) {
+            deleteButton.click()
+        }
     }
 
     boolean hasImage() {

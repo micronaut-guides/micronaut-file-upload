@@ -12,8 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Requires(beans = S3Configuration.class)
 @Requires(beans = AwsCredentialsConfigurationProperties.class)
@@ -35,16 +39,16 @@ public class S3FileRepository implements FileRepository {
 
     @Override
     public void upload(CompletedFileUpload file, String key) {
-        ObjectMetadata s3ObjectMetadata = new ObjectMetadata();
-        s3ObjectMetadata.setContentLength(file.getSize());
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Uploading {} S3 bucket  {} ", key, bucket);
         }
         try {
-            s3Client.putObject(new PutObjectRequest(bucket,
-                    key,
-                    file.getInputStream(),
-                    s3ObjectMetadata).withCannedAcl(CannedAccessControlList.PublicRead));
+
+            File tempFile = File.createTempFile(file.getFilename(), "temp");
+            Path path = Paths.get(tempFile.getAbsolutePath());
+            Files.write(path, file.getBytes());
+            s3Client.putObject(new PutObjectRequest(bucket, key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead));
 
         } catch (AmazonServiceException | IOException e) {
             if (LOG.isErrorEnabled()) {

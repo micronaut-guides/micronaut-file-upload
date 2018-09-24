@@ -4,7 +4,9 @@ import geb.spock.GebSpec
 import io.micronaut.context.ApplicationContext
 import io.micronaut.runtime.server.EmbeddedServer
 import spock.lang.AutoCleanup
+import spock.lang.IgnoreIf
 import spock.lang.Shared
+import spock.lang.Unroll
 
 class HomeSpec extends GebSpec {
 
@@ -12,10 +14,12 @@ class HomeSpec extends GebSpec {
     @AutoCleanup
     EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
 
+    @IgnoreIf({ !env['AWS_S3_REGION'] || !env['AWS_SECRET_KEY'] || !env['AWS_S3_BUCKET'] || !env['AWS_ACCESS_KEY_ID']})
+    @Unroll
     def "upload #imagename to S3 and delete"(String imagename) {
         given:
         browser.baseUrl = "http://localhost:${embeddedServer.port}"
-        File f = new File('src/test/resources/micronaut_mini_copy_tm.svg')
+        File f = new File("src/test/resources/$imagename")
 
         expect:
         f.exists()
@@ -47,6 +51,7 @@ class HomeSpec extends GebSpec {
         hasImage()
 
         when:
+        sleep(2_000) // sleep for two seconds to render image
         delete()
 
         then:
@@ -54,6 +59,6 @@ class HomeSpec extends GebSpec {
         !hasImage()
 
         where:
-        imagename << ['micronaut_mini_copy_tm.svg', 'blacklogo.png']
+        imagename << ['blacklogo.png']
     }
 }

@@ -5,16 +5,20 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import io.micronaut.context.annotation.ConfigurationProperties;
 
+import javax.validation.constraints.NotBlank;
+
 @ConfigurationProperties("aws")
 public class AwsCredentialsConfigurationProperties implements AWSCredentialsProvider {
 
-    private String accessKeyId;
+    @NotBlank
+    private String key;
 
-    private String secretKey;
+    @NotBlank
+    private String secret;
 
     @Override
     public AWSCredentials getCredentials() {
-        return new BasicAWSCredentials(getAccessKeyId(), getSecretKey());
+        return new BasicAWSCredentials(getKey(), getSecret());
     }
 
     @Override
@@ -22,20 +26,20 @@ public class AwsCredentialsConfigurationProperties implements AWSCredentialsProv
 
     }
 
-    public String getAccessKeyId() {
-        return accessKeyId;
+    public String getKey() {
+        return key;
     }
 
-    public void setAccessKeyId(String accessKeyId) {
-        this.accessKeyId = accessKeyId;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
+    public void setSecret(String secret) {
+        this.secret = secret;
     }
 
-    public String getSecretKey() {
-        return secretKey;
+    public String getSecret() {
+        return secret;
     }
 }
 
