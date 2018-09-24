@@ -1,13 +1,26 @@
 package example.micronaut;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.event.ProgressListener;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
+import com.amazonaws.services.s3.transfer.Upload;
+import com.amazonaws.services.s3.transfer.model.UploadResult;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.http.multipart.PartData;
+import io.micronaut.http.multipart.StreamingFileUpload;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,23 +51,33 @@ public class S3FileRepository implements FileRepository {
     }
 
     @Override
-    public void upload(CompletedFileUpload file, String key) {
+    public void upload(String key, StreamingFileUpload file) {
+        TransferManager tm = TransferManagerBuilder.standard()
+                .withS3Client(s3Client)
+                .withMultipartUploadThreshold((long) (5 * 1024 * 1025))
+                .build();
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Uploading {} S3 bucket  {} ", key, bucket);
-        }
-        try {
-
-            File tempFile = File.createTempFile(file.getFilename(), "temp");
-            Path path = Paths.get(tempFile.getAbsolutePath());
-            Files.write(path, file.getBytes());
-            s3Client.putObject(new PutObjectRequest(bucket, key, tempFile).withCannedAcl(CannedAccessControlList.PublicRead));
-
-        } catch (AmazonServiceException | IOException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error(e.getMessage());
-            }
-        }
+        Flowable.fromPublisher(file)
+                .forEach(partData -> {
+                    ProgressListener progressListener = null;
+                    if (LOG.isTraceEnabled()) {
+                        progressListener = progressEvent -> LOG.trace("Transferred bytes: {}", String.valueOf(progressEvent.getBytesTransferred()));
+                    }
+                    PutObjectRequest request = new PutObjectRequest(
+                            bucket, key, partData.getInputStream(), new ObjectMetadata());
+                    if (progressListener == null) {
+                        request.setGeneralProgressListener(progressListener);
+                    }
+                    Upload upload = tm.upload(request);
+                    try {
+                        upload.waitForCompletion();
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Upload complete.");
+                        }
+                    } catch (AmazonClientException e) {
+                        LOG.error("Error occurred while uploading file "+ e.getMessage());
+                    }
+                });
     }
 
     @Override

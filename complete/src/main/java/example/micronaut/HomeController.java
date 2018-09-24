@@ -1,24 +1,15 @@
 package example.micronaut;
 
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.http.multipart.StreamingFileUpload;
 import io.micronaut.views.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,13 +33,9 @@ public class HomeController {
     @View("home")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Post("/upload")
-    public Map<String, Object> upload(CompletedFileUpload file) {
-        final String key = file.getFilename();
-        fileRepository.upload(file, key);
-        URL fileURL = fileRepository.findURLbyKey(key);
+    public Map<String, Object> upload(StreamingFileUpload file) {
+        fileRepository.upload("blacklogo.png", file);
         Map<String, Object> model = new HashMap<>();
-        model.put("imageurl", fileURL.toString());
-        model.put("key", key);
         return model;
     }
 
