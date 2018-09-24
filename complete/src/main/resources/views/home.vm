@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Micronaut</title>
+    <style type="text/css">
+        form ol li {
+            list-style-type: none;
+        }
+    </style>
+</head>
+<body>
+    #if( $imageurl )
+        <img id="image" src="$imageurl">
+        <form method="post" action="/delete">
+            <input type="hidden" name="key" value="$imageurl"/>
+            <input type="submit" value="Delete"/>
+        </form>
+    #end
+    <form method="post" action="/upload" enctype="multipart/form-data">
+        <fieldset>
+            <ol>
+                <li><label for="file">File</label>: <input type="file" name="file" id="file"></li>
+                <li><input type="submit" value="Upload"/></li>
+            </ol>
+        </fieldset>
+    </form>
+</body>
+</html>

@@ -1,0 +1,5 @@
+micronaut:
+    application:
+        name: complete
+    server:
+        port: 8080
