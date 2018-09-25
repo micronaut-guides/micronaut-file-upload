@@ -7,6 +7,7 @@ import spock.lang.AutoCleanup
 import spock.lang.IgnoreIf
 import spock.lang.Shared
 import spock.lang.Unroll
+import spock.util.concurrent.PollingConditions
 
 class HomeSpec extends GebSpec {
 
@@ -16,8 +17,9 @@ class HomeSpec extends GebSpec {
 
     @IgnoreIf({ !env['AWS_S3_REGION'] || !env['AWS_SECRET_KEY'] || !env['AWS_S3_BUCKET'] || !env['AWS_ACCESS_KEY_ID']})
     @Unroll
-    def "upload #imagename to S3 and delete"(String imagename) {
+    def "upload image to S3 and delete"() {
         given:
+        final String imagename = 'blacklogo.png'
         browser.baseUrl = "http://localhost:${embeddedServer.port}"
         File f = new File("src/test/resources/$imagename")
 
@@ -31,7 +33,7 @@ class HomeSpec extends GebSpec {
         noExceptionThrown()
 
         when:
-        embeddedServer.applicationContext.getBean(S3FileRepository)
+        FileRepository fileRepository = embeddedServer.applicationContext.getBean(S3FileRepository)
 
         then:
         noExceptionThrown()
@@ -44,21 +46,27 @@ class HomeSpec extends GebSpec {
         !hasImage()
 
         when:
-        uploadFile(f.absolutePath)
+        uploadFile(imagename, f.absolutePath)
 
         then:
         at HomePage
         hasImage()
 
         when:
-        sleep(2_000) // sleep for two seconds to render image
         delete()
 
         then:
         at HomePage
         !hasImage()
 
-        where:
-        imagename << ['blacklogo.png']
+        when:
+        uploadStreamingFile(imagename, f.absolutePath)
+
+        PollingConditions conditions = new PollingConditions(timeout: 5)
+
+        then:
+        conditions.eventually {
+            fileRepository.doesObjectExists(imagename)
+        }
     }
 }

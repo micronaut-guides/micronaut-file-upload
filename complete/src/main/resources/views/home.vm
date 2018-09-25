@@ -18,11 +18,24 @@
     #if( $imageurl)
         <img id="image" src="$imageurl">
     #end
+    <h2>Completed Upload</h2>
     <form method="post" action="/upload" enctype="multipart/form-data">
         <fieldset>
             <ol>
                 <li><label for="file">File</label>: <input type="file" name="file" id="file"></li>
+                <li><label for="key">Key</label>: <input type="text" name="key" id="key"></li>
                 <li><input type="submit" value="Upload" id="uploadBtn"/></li>
+            </ol>
+        </fieldset>
+    </form>
+
+    <h2>StreamingFileUpload Upload</h2>
+    <form method="post" action="/uploadstreaming" enctype="multipart/form-data">
+        <fieldset>
+            <ol>
+                <li><label for="streamingfile">File</label>: <input type="file" name="file" id="streamingfile"></li>
+                <li><label for="streamingkey">Key</label>: <input type="text" name="key" id="streamingkey"></li>
+                <li><input type="submit" value="Upload" id="streamingUploadBtn"/></li>
             </ol>
         </fieldset>
     </form>

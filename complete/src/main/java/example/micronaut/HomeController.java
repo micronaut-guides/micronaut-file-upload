@@ -5,6 +5,7 @@ import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.StreamingFileUpload;
 import io.micronaut.views.View;
 import org.slf4j.Logger;
@@ -33,10 +34,20 @@ public class HomeController {
     @View("home")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Post("/upload")
-    public Map<String, Object> upload(StreamingFileUpload file) {
-        fileRepository.upload("blacklogo.png", file);
+    public Map<String, Object> upload(CompletedFileUpload file, String key) {
+        fileRepository.upload(key, file);
         Map<String, Object> model = new HashMap<>();
+        model.put("imageurl", fileRepository.findURLbyKey(key).toString());
+        model.put("key", key);
         return model;
+    }
+
+    @View("home")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Post("/uploadstreaming")
+    public Map<String, Object> uploadstreaming(StreamingFileUpload file, String key) {
+        fileRepository.upload(key, file);
+        return Collections.emptyMap();
     }
 
     @View("home")

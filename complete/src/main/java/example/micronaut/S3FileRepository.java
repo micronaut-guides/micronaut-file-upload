@@ -1,7 +1,6 @@
 package example.micronaut;
 
 import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.event.ProgressListener;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -11,26 +10,16 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
-import com.amazonaws.services.s3.transfer.model.UploadResult;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.multipart.CompletedFileUpload;
-import io.micronaut.http.multipart.PartData;
 import io.micronaut.http.multipart.StreamingFileUpload;
 import io.reactivex.Flowable;
-import io.reactivex.Single;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Requires(beans = S3Configuration.class)
 @Requires(beans = AwsCredentialsConfigurationProperties.class)
@@ -50,6 +39,26 @@ public class S3FileRepository implements FileRepository {
                 .build();
     }
 
+    public boolean doesObjectExists(String key) {
+        return s3Client.doesObjectExist(bucket, key);
+    }
+
+    @Override
+    public void upload(String key, CompletedFileUpload file) {
+        try {
+            PutObjectRequest request = new PutObjectRequest(
+                    bucket,
+                    key,
+                    file.getInputStream(),
+                    new ObjectMetadata()).withCannedAcl(CannedAccessControlList.PublicRead);
+            s3Client.putObject(request);
+        } catch (IOException e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Error occurred while uploading file "+ e.getMessage());
+            }
+        }
+    }
+
     @Override
     public void upload(String key, StreamingFileUpload file) {
         TransferManager tm = TransferManagerBuilder.standard()
@@ -63,8 +72,7 @@ public class S3FileRepository implements FileRepository {
                     if (LOG.isTraceEnabled()) {
                         progressListener = progressEvent -> LOG.trace("Transferred bytes: {}", String.valueOf(progressEvent.getBytesTransferred()));
                     }
-                    PutObjectRequest request = new PutObjectRequest(
-                            bucket, key, partData.getInputStream(), new ObjectMetadata());
+                    PutObjectRequest request = new PutObjectRequest(bucket, key, partData.getInputStream(), new ObjectMetadata()).withCannedAcl(CannedAccessControlList.PublicRead);
                     if (progressListener == null) {
                         request.setGeneralProgressListener(progressListener);
                     }
