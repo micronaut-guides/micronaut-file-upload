@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.transfer.Upload;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.core.async.publisher.Publishers;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.http.multipart.FileUpload;
 import io.micronaut.http.multipart.PartData;
 import io.micronaut.http.multipart.StreamingFileUpload;
 import io.reactivex.Flowable;
@@ -65,7 +66,7 @@ public class S3FileRepository implements FileRepository, Closeable {
     public void upload(String key, CompletedFileUpload file) {
         try {
             InputStream inputStream = file.getInputStream();
-            PutObjectRequest request = new PutObjectRequest(bucket, key, inputStream, new ObjectMetadata()).withCannedAcl(CannedAccessControlList.PublicRead);
+            PutObjectRequest request = new PutObjectRequest(bucket, key, inputStream, createObjectMetadata(file)).withCannedAcl(CannedAccessControlList.PublicRead);
             s3Client.putObject(request);
             inputStream.close();
         } catch (IOException e) {
@@ -79,14 +80,23 @@ public class S3FileRepository implements FileRepository, Closeable {
     public void upload(String key, StreamingFileUpload file) {
         Flowable.fromPublisher(file)
                 .map(partData -> {
-                    PutObjectRequest request = new PutObjectRequest(bucket, key, partData.getInputStream(), new ObjectMetadata()).withCannedAcl(CannedAccessControlList.PublicRead);
+
+                    PutObjectRequest request = new PutObjectRequest(bucket, key, partData.getInputStream(), createObjectMetadata(file)).withCannedAcl(CannedAccessControlList.PublicRead);
                     return tm.upload(request);
                 })
-                //.doOnTerminate(tm::shutdownNow)
                 .subscribe(upload -> {
                    do {
                    } while(!upload.isDone());
                 });
+    }
+
+    ObjectMetadata createObjectMetadata(FileUpload file) {
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        file.getContentType().ifPresent(contentType -> objectMetadata.setContentType(contentType.getName()));
+        if (file.getSize() != 0) {
+            objectMetadata.setContentLength(file.getSize());
+        }
+        return objectMetadata;
     }
 
     @Override

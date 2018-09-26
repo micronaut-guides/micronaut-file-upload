@@ -19,7 +19,7 @@ class HomeSpec extends GebSpec {
     @Unroll
     def "upload image to S3 and delete"() {
         given:
-        final String imagename = 'blacklogo.png'
+        final String imagename = 'consului.png'
         browser.baseUrl = "http://localhost:${embeddedServer.port}"
         File f = new File("src/test/resources/$imagename")
 
@@ -46,7 +46,7 @@ class HomeSpec extends GebSpec {
         !hasImage()
 
         when:
-        uploadFile(imagename, f.absolutePath)
+        uploadFile(f.absolutePath)
 
         then:
         at HomePage
@@ -60,13 +60,19 @@ class HomeSpec extends GebSpec {
         !hasImage()
 
         when:
-        uploadStreamingFile(imagename, f.absolutePath)
-
         PollingConditions conditions = new PollingConditions(timeout: 5)
+        uploadStreamingFile(f.absolutePath)
 
         then:
+        at HomePage
         conditions.eventually {
-            fileRepository.doesObjectExists(imagename)
+            fileRepository.doesObjectExists(HomeController.IMAGE_KEY)
         }
+
+        cleanup:
+        if(fileRepository.doesObjectExists(HomeController.IMAGE_KEY)) {
+            fileRepository.delete(HomeController.IMAGE_KEY)
+        }
+
     }
 }
