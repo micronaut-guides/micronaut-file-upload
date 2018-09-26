@@ -1,10 +1,12 @@
 package example.micronaut;
 
+import io.micronaut.http.HttpHeaderValues;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.StreamingFileUpload;
@@ -37,10 +39,10 @@ public class HomeController {
     @View("home")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Post("/upload")
-    public HttpResponse upload(CompletedFileUpload file) {
-        if ((file.getFilename() == null || file.getFilename().equals("")) && file.getSize() == 0) {
+    public HttpResponse upload(CompletedFileUpload file, @Header("Content-Length") String contentLength) {
+        if ((file.getFilename() == null || file.getFilename().equals(""))) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("file is not complete");
+                LOG.debug("file name is not set");
             }
             return HttpResponse.seeOther(URI.create("/"));
         }
