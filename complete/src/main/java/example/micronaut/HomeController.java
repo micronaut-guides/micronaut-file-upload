@@ -1,5 +1,6 @@
 package example.micronaut;
 
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
@@ -11,6 +12,7 @@ import io.micronaut.views.View;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,44 +20,55 @@ import java.util.Map;
 @Controller("/")
 public class HomeController {
 
+    public static final String IMAGE_KEY = "applogo.png";
     private final FileRepository fileRepository;
-    protected static final Logger LOG = LoggerFactory.getLogger(S3FileRepository.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(HomeController.class);
 
     public HomeController(FileRepository fileRepository) {
         this.fileRepository = fileRepository;
     }
 
     @View("home")
-    @Get("/")
+    @Get
     public Map<String, Object> index() {
-        return Collections.emptyMap();
+        return homeModel();
     }
 
     @View("home")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Post("/upload")
-    public Map<String, Object> upload(CompletedFileUpload file, String key) {
-        fileRepository.upload(key, file);
+    public HttpResponse upload(CompletedFileUpload file) {
+        if ((file.getFilename() == null || file.getFilename().equals("")) && file.getSize() == 0) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("file is not complete");
+            }
+            return HttpResponse.seeOther(URI.create("/"));
+        }
+        fileRepository.upload(IMAGE_KEY, file);
+        return HttpResponse.seeOther(URI.create("/"));
+    }
+
+    private Map<String, Object> homeModel() {
         Map<String, Object> model = new HashMap<>();
-        model.put("imageurl", fileRepository.findURLbyKey(key).toString());
-        model.put("key", key);
+        if (fileRepository.doesObjectExists(IMAGE_KEY)) {
+            model.put("imageurl", fileRepository.findURLbyKey(IMAGE_KEY).toString());
+        }
+        model.put("key", IMAGE_KEY);
         return model;
     }
 
     @View("home")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Post("/uploadstreaming")
-    public Map<String, Object> uploadstreaming(StreamingFileUpload file, String key) {
-        fileRepository.upload(key, file);
-        return Collections.emptyMap();
+    public HttpResponse uploadstreaming(StreamingFileUpload file) {
+        fileRepository.upload(IMAGE_KEY, file);
+        return HttpResponse.seeOther(URI.create("/"));
     }
 
-    @View("home")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Post("/delete")
-    public Map<String, Object> delete(String key) {
+    public HttpResponse delete(String key) {
         fileRepository.delete(key);
-        return Collections.emptyMap();
+        return HttpResponse.seeOther(URI.create("/"));
     }
-
 }

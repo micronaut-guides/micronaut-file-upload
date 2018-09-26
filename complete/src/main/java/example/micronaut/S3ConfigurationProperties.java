@@ -14,23 +14,53 @@ public class S3ConfigurationProperties implements S3Configuration {
     @NotBlank
     private String region;
 
-    @NotBlank
+    @NotNull
+    private Long multipartUploadThreshold;
+
+    @NotNull
+    private Integer maxUploadThreads;
+
     @Override
-    public String getBucket() {
+    public @NotBlank String getBucket() {
         return bucket;
     }
 
-    public void setBucket(@NotNull String bucket) {
-        this.bucket = bucket;
-    }
-
-    @NotBlank
     @Override
-    public String getRegion() {
+    public @NotBlank String getRegion() {
         return region;
     }
 
-    public void setRegion(@NotNull String region) {
-        this.region = region;
+    @Override
+    public @NotNull Long getMultipartUploadThreshold() {
+        return multipartUploadThreshold;
+    }
+
+    public void setBucket(String bucket) {
+        if (bucket != null) {
+            this.bucket = bucket;
+        }
+    }
+
+    public void setRegion(String region) {
+        if (region != null) {
+            this.region = region;
+        }
+    }
+
+    public void setMultipartUploadThreshold(Long multipartUploadThreshold) {
+        if (multipartUploadThreshold != null) {
+            this.multipartUploadThreshold = multipartUploadThreshold;
+        }
+    }
+
+    @Override
+    public @NotNull Integer getMaxUploadThreads() {
+        return maxUploadThreads;
+    }
+
+    public void setMaxUploadThreads(Integer maxUploadThreads) {
+        if (maxUploadThreads!=null) {
+            this.maxUploadThreads = maxUploadThreads;
+        }
     }
 }

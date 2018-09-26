@@ -9,4 +9,10 @@ public interface S3Configuration {
 
     @NotNull
     String getRegion();
+
+    @NotNull
+    Long getMultipartUploadThreshold();
+
+    @NotNull
+    Integer getMaxUploadThreads();
 }
