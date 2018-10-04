@@ -6,10 +6,9 @@ import io.micronaut.runtime.server.EmbeddedServer
 import spock.lang.AutoCleanup
 import spock.lang.IgnoreIf
 import spock.lang.Shared
-import spock.lang.Unroll
 import spock.util.concurrent.PollingConditions
 
-class HomeSpec extends GebSpec {
+class CreatePageSpec extends GebSpec {
 
     @Shared
     @AutoCleanup
@@ -32,44 +31,35 @@ class HomeSpec extends GebSpec {
         noExceptionThrown()
 
         when:
-        to HomePage
+        to CreatePage
 
         then:
-        at HomePage
+        at CreatePage
 
         when:
-        HomePage homePage = browser.page(HomePage)
+        CreatePage createPage = browser.page(CreatePage)
 
         then:
-        !homePage.hasImage()
+        !createPage.hasImage()
 
         when:
-        homePage.uploadFile(f.absolutePath)
+        createPage.uploadFile(f.absolutePath)
 
         then:
-        at HomePage
+        at CreatePage
 
         when:
-        homePage = browser.page(HomePage)
+        PollingConditions conditions = new PollingConditions(timeout: 5)
 
         then:
-        homePage.hasImage()
-
-        when:
-        homePage.delete()
-
-        then:
-        at HomePage
-
-        when:
-        homePage = browser.page(HomePage)
-
-        then:
-        !homePage.hasImage()
+        conditions.eventually {
+            fileRepository.doesObjectExists(StreamingFileUploadController.IMAGE_KEY)
+        }
 
         cleanup:
-        if(fileRepository.doesObjectExists(HomeController.IMAGE_KEY)) {
-            fileRepository.delete(HomeController.IMAGE_KEY)
+        if(fileRepository.doesObjectExists(StreamingFileUploadController.IMAGE_KEY)) {
+            fileRepository.delete(StreamingFileUploadController.IMAGE_KEY)
         }
+
     }
 }

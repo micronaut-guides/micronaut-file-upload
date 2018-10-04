@@ -1,0 +1,7 @@
+Create an interface `FileRepository` to encapsulate file upload capabilities:
+
+[source,java]
+.src/main/java/example/micronaut/FileRepository.java
+----
+include::{sourceDir}/src/main/java/example/micronaut/FileRepository.java[]
+----

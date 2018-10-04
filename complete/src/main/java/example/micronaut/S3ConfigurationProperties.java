@@ -5,7 +5,7 @@ import io.micronaut.context.annotation.ConfigurationProperties;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@ConfigurationProperties("aws.s3")
+@ConfigurationProperties("aws.s3") // <1>
 public class S3ConfigurationProperties implements S3Configuration {
 
     @NotBlank

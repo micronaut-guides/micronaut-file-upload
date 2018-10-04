@@ -1,0 +1,34 @@
+Handling of file uploads has special treatment in Micronaut. Support is provided for streaming of uploads in a non-blocking manner through streaming uploads or completed uploads.
+
+In the first part of this tutorial we are going to use a completed upload. Then we will show a streaming upload with multi-part upload. We will upload the files to a third part storage service such as https://aws.amazon.com/s3/[Amazon S3].
+
+Create a controller to receive the file upload:
+
+[source,java]
+.src/main/java/example/micronaut/HomeController.java
+----
+package example.micronaut;
+
+include::{sourceDir}/src/main/java/example/micronaut/HomeController.java[tag=imports]
+
+include::{sourceDir}/src/main/java/example/micronaut/HomeController.java[tag=clazz]
+
+include::{sourceDir}/src/main/java/example/micronaut/HomeController.java[tag=di]
+
+include::{sourceDir}/src/main/java/example/micronaut/HomeController.java[tag=index]
+
+include::{sourceDir}/src/main/java/example/micronaut/HomeController.java[tag=upload]
+
+include::{sourceDir}/src/main/java/example/micronaut/HomeController.java[tag=model]
+}
+----
+
+<1> The class is defined as a controller with the `@Controller` annotation mapped to the path `/`.
+<2> Constructor injection of a bean.
+<3> Use `@View` annotation to indicate the view name which should be used to render a view for the route.
+<4> You can specify the HTTP verb that a controller’s action responds to. To respond to a GET request, use the `io.micronaut.http.annotation.Get` annotation.
+<5> `@Consumes` annotation takes a `String[]` of supported media types for an incoming request.
+<6> The `@Post` annotation is used to map the index method to all requests that use an HTTP POST.
+<7> The `CompletedFileUpload` instance gives access to metadata about the upload as well as access to the file’s contents.
+<8> Create a 303 redirect.
+

@@ -1,0 +1,39 @@
+[source,java]
+.src/main/java/example/micronaut/S3FileRepository.java
+----
+package example.micronaut;
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=imports]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=clazz]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=propertys3client]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=constructor]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=constructors3client]
+
+    }
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=doesObjectExists]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=uploadcompleted]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=findURLbyKey]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=delete]
+
+    @Override
+    public void upload(String keyName, StreamingFileUpload file) {
+    // TODO
+    }
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=createObjectMetadata]
+
+----
+
+<1> The scope declares a requirement on `S3Configuration` and `AwsCredentialsConfigurationProperties` beans using `@Requires`.
+<2> Use `javax.inject.Singleton` to designate a class a a singleton.
+<3> Implement the interface `FileRepository` we defined previously.
+<4> Constructor injection.
+<5> Set it to `PublicRead` so that file can be accessed to anyone.

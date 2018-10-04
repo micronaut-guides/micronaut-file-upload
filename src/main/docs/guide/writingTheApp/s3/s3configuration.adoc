@@ -1,0 +1,30 @@
+https://aws.amazon.com/s3/[Amazon S3] is an Amazon Web Service which offers object storage.
+
+Create an interface to encapsulate S3 configuration:
+
+[source,java]
+
+.src/main/java/example/micronaut/S3Configuration.java
+----
+include::{sourceDir}//src/main/java/example/micronaut/S3Configuration.java[]
+----
+
+You can create type safe configuration by creating classes that are annotated with `ConfigurationProperties`.
+
+Create a `S3ConfigurationProperties` file which implements the previous interface:
+
+[source,java]
+.src/main/java/example/micronaut/S3ConfigurationProperties.java
+----
+include::{sourceDir}//src/main/java/example/micronaut/S3ConfigurationProperties.java[]
+----
+
+<1> The `@ConfigurationProperties` annotation takes the configuration prefix.
+
+Modify `application.yml` to set configuration values.
+
+[source,yaml]
+.src/main/resources/application.yml
+----
+include::{sourceDir}/src/main/resources/application.yml[tag=awss3]
+----

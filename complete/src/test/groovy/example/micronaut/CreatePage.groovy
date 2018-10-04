@@ -2,9 +2,9 @@ package example.micronaut
 
 import geb.Page
 
-class HomePage extends Page {
+class CreatePage extends Page {
 
-    static url = "/"
+    static url = "/create"
 
     static at = { title == 'Micronaut'}
 

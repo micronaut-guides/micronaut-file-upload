@@ -1,0 +1,19 @@
+gettingStarted: 
+  title: Getting Started
+  requirements: What you will need
+  solution: Solution
+writingTheApp:
+  title: Writing the App
+  filerepository: File Repository
+  uploadForm: Upload Form
+  controller: Controller
+  s3:
+    title: AWS S3
+    s3configuration: S3 Configuration
+    awsconfiguration: AWS Configuration
+    s3repository: S3 Repository
+  runningTheApp: Running the app
+  streamingupload:
+    title: Streaming Upload
+nextSteps:
+  title: Next Steps

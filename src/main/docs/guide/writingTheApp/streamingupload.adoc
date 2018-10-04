@@ -1,0 +1,47 @@
+In this section, we are going to use a `StreamedFileUpload` instead of `CompletedFileUpload`:
+
+[source,java]
+.src/main/java/example/micronaut/HomeController.java
+----
+package example.micronaut;
+
+..
+...
+
+@Controller("/")
+public class HomeController {
+..
+...
+include::{sourceDir}/src/main/java/example/micronaut/StreamingFileUploadController.java[tag=uploadstreaming]
+...
+..
+}
+----
+
+Implement the `public void upload(String keyName, StreamingFileUpload file)` method in `S3FileRepository`.
+We use the https://docs.aws.amazon.com/AmazonS3/latest/dev/usingHLmpuJava.html[AWS Java SDK for Multipart Upload (High-Level API)].
+
+[source,java]
+.src/main/java/example/micronaut/S3FileRepository.java
+----
+package example.micronaut;
+
+...
+..
+public class S3FileRepository implements FileRepository, Closeable { // <1>
+...
+
+    public S3FileRepository(S3Configuration s3Configuration,
+                            AwsCredentialsConfigurationProperties awsCredentialsConfigurationProperties) {
+        ..
+        .
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=constructortm]
+    }
+
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=uploadstreaming]
+
+include::{sourceDir}//src/main/java/example/micronaut/S3FileRepository.java[tag=close]
+----
+
+<1> Beans implementing `Closable` are closed when the app shutdowns.

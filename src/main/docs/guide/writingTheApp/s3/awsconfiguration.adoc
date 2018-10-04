@@ -1,0 +1,16 @@
+Create a `AwsCredentialsConfigurationProperties` file which implements `com.amazonaws.auth.AWSCredentialsProvider`; an interface for providing AWS credentials.
+
+[source,java]
+.src/main/java/example/micronaut/AwsCredentialsConfigurationProperties.java
+----
+include::{sourceDir}//src/main/java/example/micronaut/AwsCredentialsConfigurationProperties.java[]
+----
+
+Modify configuration in `application.yml`.
+
+[source,yaml]
+.src/main/resources/application.yml
+----
+aws:
+include::{sourceDir}/src/main/resources/application.yml[tag=aws]
+----

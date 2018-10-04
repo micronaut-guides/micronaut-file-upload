@@ -6,7 +6,7 @@
 </head>
 <body>
     #if($key && $imageurl)
-    <form method="post" action="/delete">
+    <form method="post" action="/create/delete">
         <input type="hidden" name="key" value="$key"/>
         <input type="submit" value="Delete" id="deleteBtn"/>
     </form>
@@ -15,7 +15,7 @@
         <img id="image" width="300" src="$imageurl">
     #end
     <h2>Upload</h2>
-    <form method="post" action="/upload" enctype="multipart/form-data">
+    <form method="post" action="/create/upload" enctype="multipart/form-data">
         <fieldset>
             <ol>
                 <li><label for="file">File</label>: <input type="file" name="file" id="file"></li>

@@ -1,0 +1,8 @@
+Create the application:
+
+[source,bash]
+----
+mn create-app example.micronaut.complete
+----
+
+The previous command creates a micronaut app in a folder named `complete` with default package `example.micronaut`.
